@@ -4,7 +4,7 @@ defmodule GoogleCerts.MixProject do
   def project do
     [
       app: :google_certs,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -44,8 +44,7 @@ defmodule GoogleCerts.MixProject do
       maintainers: ["Spencer Carlson"],
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/spencerdcarlson/google-certs",
-        "Docs" => "http://hexdocs.pm/google-certs"
+        "GitHub" => "https://github.com/spencerdcarlson/google-certs"
       }
     ]
   end
