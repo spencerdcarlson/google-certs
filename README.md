@@ -1,5 +1,7 @@
 # Google Certificates
 
+![Elixir CI](https://github.com/spencerdcarlson/google-certs/workflows/Elixir%20CI/badge.svg)
+
 A Lightweight GenServer that stores and caches Google's Public Certificates. 
 
 
