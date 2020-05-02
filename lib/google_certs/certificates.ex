@@ -60,7 +60,11 @@ defmodule GoogleCerts.Certificates do
   Returns true if `expire` is is less than the current UTC time.
   """
   @spec expired?(Certificates.t()) :: boolean
-  def expired?(%__MODULE__{expire: expire}), do: expire < DateTime.utc_now()
+  def expired?(%__MODULE__{expire: %DateTime{} = expire}) do
+    DateTime.compare(DateTime.utc_now(), expire) != :lt
+  end
+
+  def expired?(_), do: true
 
   @spec set_expiration(Certificates.t(), DateTime.t()) :: Certificates.t()
   def set_expiration(struct = %__MODULE__{}, expiration) do
@@ -108,6 +112,8 @@ defmodule GoogleCerts.Certificates do
         "expire" => expire,
         "version" => version
       }) do
+    {:ok, expire, 0} = DateTime.from_iso8601(expire)
+
     %__MODULE__{
       certs: Enum.map(certs, &Certificate.decode!/1),
       expire: expire,
