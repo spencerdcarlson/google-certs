@@ -10,7 +10,7 @@ defmodule GoogleCerts do
   """
 
   require Logger
-  alias GoogleCerts.{Certificate, CertificateCache, Certificates}
+  alias GoogleCerts.{Certificate, CertificateCache, Certificates, Env}
 
   @doc """
   Returns the currently stored `GoogleCerts.Certifcates`.
@@ -94,7 +94,7 @@ defmodule GoogleCerts do
       with {:get_uri_path, {:ok, path}} <- {:get_uri_path, certificate_uri_path(version)},
            {:http_request, {:ok, 200, headers, response}} <-
              {:http_request,
-              :hackney.get("https://www.googleapis.com" <> path, [
+              :hackney.get(Env.google_host() <> path, [
                 {"content-type", "application/json"}
               ])},
            {:extract_max_age, {:ok, seconds}} <- {:extract_max_age, max_age(headers)},

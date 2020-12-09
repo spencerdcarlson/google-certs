@@ -4,7 +4,7 @@ defmodule GoogleCerts.MixProject do
   def project do
     [
       app: :google_certs,
-      version: "0.1.2",
+      version: "0.2.2",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
