@@ -7,10 +7,7 @@ defmodule GoogleCerts.CertificateCache do
   require Logger
   alias GoogleCerts.{CertificateDecodeException, Certificates, Env}
 
-  @default_certificate_version 3
-  defp certificate_version do
-    Application.get_env(:google_certs, :version, @default_certificate_version)
-  end
+  defp certificate_version, do: Env.api_version()
 
   def start_link([]) do
     case load() do

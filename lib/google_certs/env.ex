@@ -8,7 +8,8 @@ defmodule GoogleCerts.Env do
   @defaults [
     library_version: "unset",
     filename: "google.oauth2.certificates.json",
-    google_certs_host: "https://www.googleapis.com"
+    google_certs_host: "https://www.googleapis.com",
+    api_version: 3
   ]
   @tmp "/tmp"
 
@@ -30,7 +31,7 @@ defmodule GoogleCerts.Env do
     else
       _ ->
         if value == @tmp, do: raise("Could not fallback to #{@tmp} directory")
-        Logger.error("Error parsing the user's cache filepath. Falling back to default")
+        Logger.warn("Error parsing the user's cache filepath. Falling back to default")
         default_cache_path()
     end
   end
@@ -41,9 +42,7 @@ defmodule GoogleCerts.Env do
         :code.priv_dir(app)
 
       _ ->
-        Logger.error(
-          "Error getting the /priv directory of the host app. Falling back to /tmp dir"
-        )
+        Logger.warn("Error getting the /priv directory of the host app. Falling back to /tmp dir")
 
         @tmp
     end
@@ -77,8 +76,28 @@ defmodule GoogleCerts.Env do
     end
   end
 
+  def api_version do
+    default = @defaults[:api_version]
+    value = get_env("GOOGLE_CERTS_API_VERSION", :api_version, default)
+
+    case value |> parse_value() |> to_number(default) do
+      version when is_number(version) ->
+        version
+
+      _ ->
+        Logger.error("Error parsing the user's google api version. Falling back to default")
+        default
+    end
+  end
+
   defp get_env(string_key, atom_key, default) do
-    System.get_env(string_key, Application.get_env(app(), atom_key, default))
+    default =
+      case Application.get_env(app(), atom_key, default) do
+        value when is_binary(value) -> value
+        value -> inspect(value)
+      end
+
+    System.get_env(string_key, default)
   end
 
   defp parse_value(list) when is_list(list) do
