@@ -84,7 +84,7 @@ defmodule GoogleCerts.Certificates do
     }
   end
 
-  def add_cert(struct = %__MODULE__{certs: certs, version: 3}, kid, cert) do
+  def add_cert(struct = %__MODULE__{certs: certs, version: v}, kid, cert) when v in 2..3 do
     %__MODULE__{
       struct
       | certs: [%Certificate{kid: kid, cert: cert} | certs],

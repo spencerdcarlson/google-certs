@@ -111,7 +111,7 @@ defmodule GoogleCerts do
         %Certificates{}
         |> Certificates.set_version(version)
         |> Certificates.set_expiration(expiration)
-        |> map_certificates(decoded)
+        |> add_certificates(decoded)
       else
         error ->
           Logger.error("Error getting Google OAuth2 certificates. Error: " <> inspect(error))
@@ -123,13 +123,13 @@ defmodule GoogleCerts do
     end
   end
 
-  defp map_certificates(certs = %Certificates{version: 1}, body) do
+  defp add_certificates(certs = %Certificates{version: 1}, body) do
     Enum.reduce(body, certs, fn {kid, cert}, acc ->
       Certificates.add_cert(acc, kid, cert)
     end)
   end
 
-  defp map_certificates(certs = %Certificates{version: 3}, body) do
+  defp add_certificates(certs = %Certificates{version: version}, body) when version in 2..3 do
     body
     |> Map.get("keys")
     |> Enum.reduce(certs, fn cert = %{"kid" => kid}, acc ->
@@ -138,6 +138,7 @@ defmodule GoogleCerts do
   end
 
   defp certificate_uri_path(1), do: {:ok, "/oauth2/v1/certs"}
+  defp certificate_uri_path(2), do: {:ok, "/oauth2/v2/certs"}
   defp certificate_uri_path(3), do: {:ok, "/oauth2/v3/certs"}
   defp certificate_uri_path(_), do: {:error, :no_cert_version_path}
 

@@ -81,7 +81,7 @@ defmodule GoogleCerts.Env do
     value = get_env("GOOGLE_CERTS_API_VERSION", :api_version, default)
 
     case value |> parse_value() |> to_number(default) do
-      version when is_number(version) ->
+      version when is_number(version) and version in 1..3 ->
         version
 
       _ ->

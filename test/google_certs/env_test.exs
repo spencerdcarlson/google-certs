@@ -1,9 +1,7 @@
 defmodule GoogleCerts.EnvTest do
+  use GoogleCerts.Case
   use ExUnit.Case, async: false
   alias GoogleCerts.Env
-
-  setup :remove_configs
-  @app :google_certs
 
   describe "Env" do
     test "has a default value for each value" do
@@ -21,7 +19,7 @@ defmodule GoogleCerts.EnvTest do
         api_version: 2
       ]
 
-      Enum.each(envs, fn {env, value} -> Application.put_env(@app, env, value) end)
+      Enum.each(envs, fn {env, value} -> Application.put_env(:google_certs, env, value) end)
 
       assert Env.file_name() == "config-test.json"
       assert Env.google_host() == "https://httpstat.us/400"
@@ -34,7 +32,7 @@ defmodule GoogleCerts.EnvTest do
         {"GOOGLE_CERTS_FILENAME", "env-test.json"},
         {"GOOGLE_CERTS_HOST", "https://httpstat.us/200"},
         {"GOOGLE_CERTS_CACHE_FILEPATH", "/var"},
-        {"GOOGLE_CERTS_API_VERSION", "4"}
+        {"GOOGLE_CERTS_API_VERSION", "1"}
       ]
 
       Enum.each(envs, fn {env, value} -> System.put_env(env, value) end)
@@ -42,33 +40,7 @@ defmodule GoogleCerts.EnvTest do
       assert Env.file_name() == "env-test.json"
       assert Env.google_host() == "https://httpstat.us/200"
       assert Env.cache_path() == "/var"
-      assert Env.api_version() == 4
+      assert Env.api_version() == 1
     end
-  end
-
-  def remove_configs(_context) do
-    envs = [
-      {:filename, "GOOGLE_CERTS_FILENAME"},
-      {:google_certs_host, "GOOGLE_CERTS_HOST"},
-      {:cache_filepath, "GOOGLE_CERTS_CACHE_FILEPATH"},
-      {:api_version, "GOOGLE_CERTS_API_VERSION"}
-    ]
-
-    Enum.each(envs, fn {config, env} ->
-      Application.delete_env(@app, config)
-      System.delete_env(env)
-    end)
-
-    on_exit(&restore_configs/0)
-  end
-
-  def restore_configs do
-    envs = [
-      filename: "google.oauth2.certificates.json",
-      google_certs_host: "https://www.googleapis.com",
-      api_version: 3
-    ]
-
-    Enum.each(envs, fn {env, value} -> Application.put_env(@app, env, value) end)
   end
 end
