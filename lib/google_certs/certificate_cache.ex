@@ -5,12 +5,9 @@ defmodule GoogleCerts.CertificateCache do
 
   use Agent
   require Logger
-  alias GoogleCerts.{CertificateDecodeException, Certificates}
+  alias GoogleCerts.{CertificateDecodeException, Certificates, Env}
 
-  @default_certificate_version 3
-  defp certificate_version do
-    Application.get_env(:google_certs, :version, @default_certificate_version)
-  end
+  defp certificate_version, do: Env.api_version()
 
   def start_link([]) do
     case load() do
@@ -76,15 +73,5 @@ defmodule GoogleCerts.CertificateCache do
     end
   end
 
-  defp path do
-    case :application.get_application() do
-      {:ok, app} ->
-        app
-        |> :code.priv_dir()
-        |> Path.join("google.oauth2.certificates.json")
-
-      _ ->
-        "/tmp/google.oauth2.certificates.json"
-    end
-  end
+  defp path, do: Path.join(Env.cache_path(), Env.file_name())
 end
