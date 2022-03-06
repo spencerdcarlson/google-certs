@@ -10,7 +10,7 @@ defmodule GoogleCerts.CertificateCache do
   @spec certificate_version :: integer()
   defp certificate_version, do: Env.api_version()
 
-  @spec start_link([] | GoogleCerts.Certificates.t()) :: {:error, any} | {:ok, pid}
+  @spec start_link([] | Certificates.t()) :: GenServer.on_start()
   def start_link([]) do
     case load() do
       {:ok, certs = %Certificates{}} ->

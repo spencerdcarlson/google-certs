@@ -74,7 +74,7 @@ defmodule GoogleCerts do
 
     case Certificates.find(certificates, kid) do
       %Certificate{cert: cert} -> {:ok, algorithm, cert}
-      nil -> {:error, :cert_not_found}
+      _ -> {:error, :cert_not_found}
     end
   end
 
