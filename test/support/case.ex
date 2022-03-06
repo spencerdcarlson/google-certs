@@ -18,12 +18,12 @@ defmodule GoogleCerts.Case do
       {:filename, "GOOGLE_CERTS_FILENAME", "google.oauth2.certificates.json"},
       {:google_certs_host, "GOOGLE_CERTS_HOST", "https://www.googleapis.com"},
       {:cache_filepath, "GOOGLE_CERTS_CACHE_FILEPATH", "google.oauth2.certificates.json"},
-      {:api_version, "GOOGLE_CERTS_API_VERSION", 2}
+      {:api_version, "GOOGLE_CERTS_API_VERSION", 3}
     ]
-    |> Enum.each(fn {config, env, value} ->
-      Application.delete_env(@app, config)
+    |> Enum.each(fn {key, env, value} ->
+      Application.delete_env(@app, key)
       System.delete_env(env)
-      Application.put_env(@app, env, value)
+      Application.put_env(@app, key, value)
     end)
 
     :ok

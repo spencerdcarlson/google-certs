@@ -41,20 +41,24 @@ defmodule GoogleCerts.Certificates do
 
   alias GoogleCerts.{Certificate, CertificateDecodeException, Certificates}
   @derive Jason.Encoder
-  defstruct certs: [], expire: nil, algorithm: "RS256", version: 1
+  defstruct certs: [], expire: DateTime.utc_now(), algorithm: "RS256", version: 1
 
-  @type t(certs, expire, algorithm, version) :: %Certificates{
+  @type t(certs, expire, algorithm, version) :: %__MODULE__{
           certs: certs,
           expire: expire,
           algorithm: algorithm,
           version: version
         }
-  @type t :: %Certificates{
+
+  @type t :: %__MODULE__{
+          algorithm: String.t(),
           certs: list(Certificate.t()),
           expire: DateTime.t(),
-          algorithm: String.t(),
-          version: integer
+          version: integer()
         }
+
+  @spec new :: Certificates.t()
+  def new, do: %__MODULE__{}
 
   @doc """
   Returns true if `expire` is is less than the current UTC time.
@@ -71,7 +75,7 @@ defmodule GoogleCerts.Certificates do
     %__MODULE__{struct | expire: expiration}
   end
 
-  @spec set_version(Certificates.t(), integer) :: Certificates.t()
+  @spec set_version(Certificates.t(), integer()) :: Certificates.t()
   def set_version(struct = %__MODULE__{}, version) do
     %__MODULE__{struct | version: version}
   end
@@ -95,7 +99,7 @@ defmodule GoogleCerts.Certificates do
   @doc """
   Returns a `GoogleCerts.Certificate` for a given kid that is in `certs`
   """
-  @spec find(Certificates.t(), String.t()) :: Certificate.t()
+  @spec find(Certificates.t(), String.t()) :: Certificate.t() | nil
   def find(%__MODULE__{certs: certs}, kid) do
     Enum.find(certs, fn %Certificate{kid: id} -> id == kid end)
   end
