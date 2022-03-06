@@ -72,7 +72,7 @@ defmodule GoogleCertsTest do
 
       assert DateTime.utc_now()
              |> DateTime.add(seconds, :second)
-             |> DateTime.diff(Map.get(result, :expire)) == 0
+             |> DateTime.diff(Map.get(result, :expire)) < :timer.hours(24) / 1_000
 
       assert match?(
                %Certificate{cert: %{"kid" => "key1", "n" => "certificate 1"}, kid: "key1"},
