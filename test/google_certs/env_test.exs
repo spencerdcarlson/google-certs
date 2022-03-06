@@ -7,12 +7,13 @@ defmodule GoogleCerts.EnvTest do
     test "has a default value for each value" do
       assert Env.file_name() == "google.oauth2.certificates.json"
       assert Env.google_host() == "https://www.googleapis.com"
-      assert Env.cache_path() == "/tmp"
+      assert Env.cache_path() |> File.dir?()
       assert Env.api_version() == 3
     end
 
     test "can be set as an elixir config" do
       temp_dir = System.tmp_dir!()
+
       envs = [
         filename: "config-test.json",
         google_certs_host: "https://httpstat.us/400",
@@ -30,6 +31,7 @@ defmodule GoogleCerts.EnvTest do
 
     test "can be set using System environment variables" do
       temp_dir = System.tmp_dir!()
+
       envs = [
         {"GOOGLE_CERTS_FILENAME", "env-test.json"},
         {"GOOGLE_CERTS_HOST", "https://httpstat.us/200"},
@@ -44,10 +46,5 @@ defmodule GoogleCerts.EnvTest do
       assert Env.cache_path() == temp_dir
       assert Env.api_version() == 1
     end
-  end
-
-  test "can be awesome" do
-
-    Env.cache_path() |> IO.inspect(label: "hello")
   end
 end
