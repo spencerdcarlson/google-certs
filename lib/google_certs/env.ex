@@ -11,10 +11,11 @@ defmodule GoogleCerts.Env do
     google_certs_host: "https://www.googleapis.com",
     api_version: 3
   ]
-  @tmp "/tmp"
 
+  @spec app :: atom()
   def app, do: @app
 
+  @spec library_version :: binary
   def library_version do
     app()
     |> Application.spec()
@@ -30,7 +31,6 @@ defmodule GoogleCerts.Env do
       path
     else
       _ ->
-        if value == @tmp, do: raise("Could not fallback to #{@tmp} directory")
         Logger.warn("Error parsing the user's cache filepath. Falling back to default")
         default_cache_path()
     end
@@ -42,9 +42,13 @@ defmodule GoogleCerts.Env do
         :code.priv_dir(app)
 
       _ ->
-        Logger.warn("Error getting the /priv directory of the host app. Falling back to /tmp dir")
+        tmp_dir = System.tmp_dir!()
 
-        @tmp
+        Logger.warn(
+          "Error getting the /priv directory of the host app. Falling back to #{inspect(tmp_dir)} dir"
+        )
+
+        tmp_dir
     end
   end
 
