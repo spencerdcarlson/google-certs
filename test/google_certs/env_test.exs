@@ -12,10 +12,11 @@ defmodule GoogleCerts.EnvTest do
     end
 
     test "can be set as an elixir config" do
+      temp_dir = System.tmp_dir!()
       envs = [
         filename: "config-test.json",
         google_certs_host: "https://httpstat.us/400",
-        cache_filepath: "/dev",
+        cache_filepath: temp_dir,
         api_version: 2
       ]
 
@@ -23,15 +24,16 @@ defmodule GoogleCerts.EnvTest do
 
       assert Env.file_name() == "config-test.json"
       assert Env.google_host() == "https://httpstat.us/400"
-      assert Env.cache_path() == "/dev"
+      assert Env.cache_path() == temp_dir
       assert Env.api_version() == 2
     end
 
     test "can be set using System environment variables" do
+      temp_dir = System.tmp_dir!()
       envs = [
         {"GOOGLE_CERTS_FILENAME", "env-test.json"},
         {"GOOGLE_CERTS_HOST", "https://httpstat.us/200"},
-        {"GOOGLE_CERTS_CACHE_FILEPATH", "/var"},
+        {"GOOGLE_CERTS_CACHE_FILEPATH", temp_dir},
         {"GOOGLE_CERTS_API_VERSION", "1"}
       ]
 
@@ -39,7 +41,7 @@ defmodule GoogleCerts.EnvTest do
 
       assert Env.file_name() == "env-test.json"
       assert Env.google_host() == "https://httpstat.us/200"
-      assert Env.cache_path() == "/var"
+      assert Env.cache_path() == temp_dir
       assert Env.api_version() == 1
     end
   end
