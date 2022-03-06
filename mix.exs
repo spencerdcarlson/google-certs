@@ -56,6 +56,7 @@ defmodule GoogleCerts.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
       {:jason, "~> 1.0"},
       {:hackney, "~> 1.15"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},

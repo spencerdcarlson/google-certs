@@ -74,7 +74,6 @@ defmodule GoogleCerts do
 
     case Certificates.find(certificates, kid) do
       %Certificate{cert: cert} -> {:ok, algorithm, cert}
-      nil -> {:error, :cert_not_found}
       _ -> {:error, :cert_not_found}
     end
   end
@@ -108,7 +107,7 @@ defmodule GoogleCerts do
           }"
         )
 
-        %Certificates{}
+        Certificates.new()
         |> Certificates.set_version(version)
         |> Certificates.set_expiration(expiration)
         |> add_certificates(decoded)
@@ -161,6 +160,4 @@ defmodule GoogleCerts do
   defp expiration(seconds) when is_number(seconds) do
     {:ok, DateTime.add(DateTime.utc_now(), seconds, :second)}
   end
-
-  defp expiration(_), do: {:error, :expiration}
 end

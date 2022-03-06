@@ -76,6 +76,7 @@ defmodule GoogleCerts.Env do
     end
   end
 
+  @spec api_version :: integer()
   def api_version do
     default = @defaults[:api_version]
     value = get_env("GOOGLE_CERTS_API_VERSION", :api_version, default)
