@@ -43,4 +43,9 @@ defmodule GoogleCerts.EnvTest do
       assert Env.api_version() == 1
     end
   end
+
+  test "can be awesome" do
+
+    Env.cache_path() |> IO.inspect(label: "hello")
+  end
 end

@@ -13,8 +13,10 @@ defmodule GoogleCerts.Env do
   ]
   @tmp "/tmp"
 
+  @spec app :: atom()
   def app, do: @app
 
+  @spec library_version :: binary
   def library_version do
     app()
     |> Application.spec()
@@ -30,6 +32,7 @@ defmodule GoogleCerts.Env do
       path
     else
       _ ->
+        # if we tried to fall back to /tmp but the OS does not have that as a directory (e.g. Windows)
         if value == @tmp, do: raise("Could not fallback to #{@tmp} directory")
         Logger.warn("Error parsing the user's cache filepath. Falling back to default")
         default_cache_path()
