@@ -8,17 +8,20 @@ defmodule GoogleCerts.Case do
     quote do
       alias GoogleCerts
       alias GoogleCerts.{Certificate, Certificates}
-      import Mock
+      import Mox
     end
   end
 
   setup _context do
     # clear defaults and set them
     [
+      {:api_version, "GOOGLE_CERTS_API_VERSION", 3},
+      {:auto_start?, "GOOGLE_CERTS_ENABLE_AUTO_START", true},
+      {:cache_filepath, "GOOGLE_CERTS_CACHE_FILEPATH", "google.oauth2.certificates.json"},
       {:filename, "GOOGLE_CERTS_FILENAME", "google.oauth2.certificates.json"},
       {:google_certs_host, "GOOGLE_CERTS_HOST", "https://www.googleapis.com"},
-      {:cache_filepath, "GOOGLE_CERTS_CACHE_FILEPATH", "google.oauth2.certificates.json"},
-      {:api_version, "GOOGLE_CERTS_API_VERSION", 3}
+      {:load_from_disk?, "GOOGLE_CERTS_ENABLE_LOAD_FROM_DISK", false},
+      {:write_to_disk?, "GOOGLE_CERTS_ENABLE_WRITE_TO_DISK", false}
     ]
     |> Enum.each(fn {key, env, value} ->
       Application.delete_env(@app, key)
