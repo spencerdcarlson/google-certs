@@ -34,8 +34,8 @@ Invoke `GoogleCerts.get/0` or `GoogleCerts.fetch/1` where needed.
 `GoogleCerts.CertificateCache` is an [Agent](https://hexdocs.pm/elixir/Agent.html) that will automatically be 
 started and hydrated so that calls to `GoogleCerts.get/0` or `GoogleCerts.fetch/1` will return the cached results.
 
-Everytime `GoogleCerts.get/0` or `GoogleCerts.fetch/1` is invoked, the expiration of the cached certificates is checked. If 
-the certificates are expired then a new network request is automaticaly issued to Google's API to refresh the cache. 
+Every time `GoogleCerts.get/0` or `GoogleCerts.fetch/1` is invoked, the expiration of the cached certificates is checked. If 
+the certificates are expired then a new network request is automatically issued to Google's API to refresh the cache. 
 
 ### Optional
 If you wish to start `GoogleCerts.CertificateCache` manually you can set `GOOGLE_CERTS_ENABLE_AUTO_START=false`
