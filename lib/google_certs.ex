@@ -87,7 +87,7 @@ defmodule GoogleCerts do
   If the provided certificates are expired, then new certificates are retrieved via an HTTP request.
   The certificates returned will always be the same version as the certificates provided.
   """
-  @spec refresh(%Certificates{}) :: Certificates.t()
+  @spec refresh(Certificates.t()) :: Certificates.t()
   def refresh(certs = %Certificates{version: version}) do
     if Certificates.expired?(certs) do
       Logger.debug("Certificates are expired. Request new certificates via HTTP.")
@@ -95,9 +95,7 @@ defmodule GoogleCerts do
       case client().get(version) do
         {:ok, %Response{expiration: exp, cert: cert}} ->
           Logger.debug(
-            "Retrieved new certificates (v#{inspect(version)}) via HTTP. Certificates will expire on: #{
-              exp
-            }"
+            "Retrieved new certificates (v#{inspect(version)}) via HTTP. Certificates will expire on: #{exp}"
           )
 
           certs =

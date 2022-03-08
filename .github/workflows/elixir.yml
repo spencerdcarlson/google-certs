@@ -7,6 +7,19 @@ on:
     branches: [ master ]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: '24.2.2'
+        elixir-version: '1.13.3'
+    - name: Format
+      run: mix format --check-formatted 
+    - name: Install Dependencies
+      run: mix credo --strict
   build:
     runs-on: ${{ matrix.os }} 
     name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
