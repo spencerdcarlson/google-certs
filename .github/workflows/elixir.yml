@@ -17,6 +17,11 @@ jobs:
       with:
         otp-version: '24.2.2'
         elixir-version: '1.13.3'
+    - name: Version Check
+      run: |
+        CURRENT=$(cat mix.exs | grep version | sed -e 's/.*version: "\(.*\)",/\1/')
+        LATEST=$(mix hex.info google_certs | grep -o 'Releases:\s*[^,]*' | grep -o '\s[^,]*' | xargs)
+        [ "${CURRENT}" != "${LATEST}" ] || (echo "Current version needs to be incremented. Current: ${CURRENT}, Latest: ${LATEST}" && exit 1)
     - name: Install Dependencies
       run: mix deps.get
     - name: Compile
