@@ -24,12 +24,12 @@ jobs:
         # OTP and Elixir Compatibility
         # https://hexdocs.pm/elixir/1.13/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp
         exclude:
-          - otp: 24.2.2
-            elixir: [1.9.0, 1.9.4]
-          - otp: 24.2.2
-            elixir: [1.10.4]
-          - otp: 24.2.2
-            elixir: [1.11.4]
+          - otp: '24.2.2'
+            elixir: ['1.9.0', '1.9.4']
+          - otp: '24.2.2'
+            elixir: ['1.10.4']
+          - otp: '24.2.2'
+            elixir: ['1.11.4']
     steps:
     - uses: actions/checkout@v2
     - name: Setup elixir
