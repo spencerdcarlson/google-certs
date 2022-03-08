@@ -9,6 +9,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    name: Format & Lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup elixir
@@ -16,9 +17,13 @@ jobs:
       with:
         otp-version: '24.2.2'
         elixir-version: '1.13.3'
+    - name: Install Dependencies
+      run: mix deps.get
+    - name: Compile
+      run: mix compile
     - name: Format
       run: mix format --check-formatted 
-    - name: Install Dependencies
+    - name: Lint
       run: mix credo --strict
   build:
     runs-on: ${{ matrix.os }} 
