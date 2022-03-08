@@ -9,7 +9,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    name: Format & Lint
+    name: Version Check, Format & Lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup elixir
@@ -17,6 +17,11 @@ jobs:
       with:
         otp-version: '24.2.2'
         elixir-version: '1.13.3'
+    - name: Hex Version Check
+      run: |
+        CURRENT=$(cat mix.exs | grep version | sed -e 's/.*version: "\(.*\)",/\1/')
+        LATEST=$(mix hex.info google_certs | grep -o 'Releases:\s*[^,]*' | grep -o '\s[^,]*' | xargs)
+        [ "${CURRENT}" != "${LATEST}" ] || (echo "Current version needs to be incremented. Current: ${CURRENT}, Latest: ${LATEST}" && exit 1)
     - name: Install Dependencies
       run: mix deps.get
     - name: Compile
