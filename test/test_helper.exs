@@ -1,6 +1,9 @@
 # credo:disable-for-this-file
 ExUnit.start()
 
+Mox.defmock(GoogleCerts.MockHTTPClient, for: GoogleCerts.Client)
+Application.put_env(:google_certs, :http_client, GoogleCerts.MockHTTPClient)
+
 # example payload responses
 # api v1
 # """

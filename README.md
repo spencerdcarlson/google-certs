@@ -28,8 +28,18 @@ end
 ```
 
 ## Usage
-`GoogleCerts.CertificateCache` is an [Agent](https://hexdocs.pm/elixir/Agent.html) 
-so you can simply add it to your supervision tree and Google's certificates will be downloaded and cached on startup.
+Invoke `GoogleCerts.get/0` or `GoogleCerts.fetch/1` where needed.
+
+### More Info
+`GoogleCerts.CertificateCache` is an [Agent](https://hexdocs.pm/elixir/Agent.html) that will automatically be 
+started and hydrated so that calls to `GoogleCerts.get/0` or `GoogleCerts.fetch/1` will return the cached results.
+
+Every time `GoogleCerts.get/0` or `GoogleCerts.fetch/1` is invoked, the expiration of the cached certificates is checked. If 
+the certificates are expired then a new network request is automatically issued to Google's API to refresh the cache. 
+
+### Optional
+If you wish to start `GoogleCerts.CertificateCache` manually you can set `GOOGLE_CERTS_ENABLE_AUTO_START=false`
+or `auto_start?: false` and add it to your supervision tree.
 ```elixir
   use Application
   alias GoogleCerts.CertificateCache
@@ -112,8 +122,16 @@ iex> {:ok, claims} = JWTManager.verify_and_validate(jwt)
 ```
 
 ## Configuration (Optional)
+See `GoogleCerts.Env` for all possible configurations. Most settings can be set using either 
+system environment variables or elixir configurations.
+
 ```elixir
 # config/config.exs
 config :google_certs, version: 1 # Use PEM format instead of JWK format. defaults to 3 for JWK
+```
+
+```bash
+# bash
+GOOGLE_CERTS_API_VERSION=1 iex -S mix phx.server # Use PEM format instead of JWK format. defaults to 3 for JWK
 ```
 

@@ -10,7 +10,7 @@ defmodule GoogleCerts do
   """
 
   require Logger
-  alias GoogleCerts.{Certificate, CertificateCache, Certificates, Env}
+  alias GoogleCerts.{Certificate, CertificateCache, Certificates, Client, Client.Response, Env}
 
   @doc """
   Returns the currently stored `GoogleCerts.Certifcates`.
@@ -70,13 +70,15 @@ defmodule GoogleCerts do
   """
   @spec fetch(String.t()) :: {:ok, String.t(), map()} | {:error, :cert_not_found}
   def fetch(kid) do
-    certificates = %Certificates{algorithm: algorithm} = CertificateCache.get()
-
-    case Certificates.find(certificates, kid) do
-      %Certificate{cert: cert} -> {:ok, algorithm, cert}
+    with certificates = %Certificates{algorithm: algorithm} <- get(),
+         %Certificate{cert: cert} <- Certificates.find(certificates, kid) do
+      {:ok, algorithm, cert}
+    else
       _ -> {:error, :cert_not_found}
     end
   end
+
+  defp client, do: Application.get_env(Env.app(), :client, Client)
 
   @doc """
   Returns a `GoogleCerts.Certifcates` that is not expired.
@@ -85,33 +87,30 @@ defmodule GoogleCerts do
   If the provided certificates are expired, then new certificates are retrieved via an HTTP request.
   The certificates returned will always be the same version as the certificates provided.
   """
-  @spec refresh(%Certificates{}) :: Certificates.t()
+  @spec refresh(Certificates.t()) :: Certificates.t()
   def refresh(certs = %Certificates{version: version}) do
     if Certificates.expired?(certs) do
       Logger.debug("Certificates are expired. Request new certificates via HTTP.")
 
-      with {:get_uri_path, {:ok, path}} <- {:get_uri_path, certificate_uri_path(version)},
-           {:http_request, {:ok, 200, headers, response}} <-
-             {:http_request,
-              :hackney.get(Env.google_host() <> path, [
-                {"content-type", "application/json"}
-              ])},
-           {:extract_max_age, {:ok, seconds}} <- {:extract_max_age, max_age(headers)},
-           {:calculate_expiration, {:ok, expiration}} <-
-             {:calculate_expiration, expiration(seconds)},
-           {:read_response_body, {:ok, body}} <- {:read_response_body, :hackney.body(response)},
-           {:decode, {:ok, decoded}} <- {:decode, Jason.decode(body)} do
-        Logger.debug(
-          "Retrieved new certificates (v#{inspect(version)}) via HTTP. Certificates will expire on: #{
-            DateTime.to_iso8601(expiration)
-          }"
-        )
+      case client().get(version) do
+        {:ok, %Response{expiration: exp, cert: cert}} ->
+          Logger.debug(
+            "Retrieved new certificates (v#{inspect(version)}) via HTTP. Certificates will expire on: #{exp}"
+          )
 
-        Certificates.new()
-        |> Certificates.set_version(version)
-        |> Certificates.set_expiration(expiration)
-        |> add_certificates(decoded)
-      else
+          certs =
+            Certificates.new()
+            |> Certificates.set_version(version)
+            |> Certificates.set_expiration(exp)
+            |> add_certificates(cert)
+
+          # Async write updated certs to file (disabled by default)
+          Task.Supervisor.start_child(GoogleCerts.TaskSupervisor, fn ->
+            CertificateCache.serialize(certs)
+          end)
+
+          certs
+
         error ->
           Logger.error("Error getting Google OAuth2 certificates. Error: " <> inspect(error))
           certs
@@ -134,30 +133,5 @@ defmodule GoogleCerts do
     |> Enum.reduce(certs, fn cert = %{"kid" => kid}, acc ->
       Certificates.add_cert(acc, kid, cert)
     end)
-  end
-
-  defp certificate_uri_path(1), do: {:ok, "/oauth2/v1/certs"}
-  defp certificate_uri_path(2), do: {:ok, "/oauth2/v2/certs"}
-  defp certificate_uri_path(3), do: {:ok, "/oauth2/v3/certs"}
-  defp certificate_uri_path(_), do: {:error, :no_cert_version_path}
-
-  defp max_age(headers) do
-    with {:cache_control, {_, value}} <-
-           {:cache_control, Enum.find(headers, :not_found, &match_cache_control?/1)},
-         {:max_age, %{"max_age" => seconds}} <-
-           {:max_age, Regex.named_captures(~r/.*max-age=(?<max_age>\d+)/, value)} do
-      {:ok, String.to_integer(seconds)}
-    else
-      error ->
-        Logger.error("error getting max age from response headers. Error: " <> inspect(error))
-        {:error, :no_max_age}
-    end
-  end
-
-  defp match_cache_control?({key, _}), do: Regex.match?(~r/cache-control/i, key)
-  defp match_cache_control?(_), do: false
-
-  defp expiration(seconds) when is_number(seconds) do
-    {:ok, DateTime.add(DateTime.utc_now(), seconds, :second)}
   end
 end

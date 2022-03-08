@@ -9,6 +9,9 @@ defmodule GoogleCerts.EnvTest do
       assert Env.google_host() == "https://www.googleapis.com"
       assert Env.cache_path() |> File.dir?()
       assert Env.api_version() == 3
+      assert Env.auto_start?()
+      refute Env.load_from_disk?()
+      refute Env.write_to_disk?()
     end
 
     test "can be set as an elixir config" do
